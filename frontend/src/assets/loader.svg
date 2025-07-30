@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 200 200"
+>
+  <!-- Chevron ring -->
+  <g id="chevron-ring">
+    <polygon points="100,20 90,40 110,40" transform="rotate(0 100 100)" />
+    <polygon points="100,20 90,40 110,40" transform="rotate(60 100 100)" />
+    <polygon points="100,20 90,40 110,40" transform="rotate(120 100 100)" />
+    <polygon points="100,20 90,40 110,40" transform="rotate(180 100 100)" />
+    <polygon points="100,20 90,40 110,40" transform="rotate(240 100 100)" />
+    <polygon points="100,20 90,40 110,40" transform="rotate(300 100 100)" />
+  </g>
+
+  <!-- DG coin -->
+  <g id="dg-coin">
+    <circle cx="100" cy="100" r="40"/>
+    <text x="100" y="112" text-anchor="middle" font-size="32" font-weight="bold">DG</text>
+  </g>
+</svg>

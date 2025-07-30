@@ -1,0 +1,65 @@
+/* 1) Default theme values (dark by default) */
+:root {
+  --bg: #1f2937;
+  --text: #f9fafb;
+  --primary: #2563eb;
+  --secondary: #f59e0b;
+  --card-bg: #374151;
+  --border: #4b5563;
+}
+
+/* 2) Theme‑specific overrides (if you add the class to <html>) */
+:root.light {
+  --bg: #ffffff;
+  --text: #1f2937;
+  --primary: #2563eb;
+  --secondary: #f59e0b;
+  --card-bg: #f9fafb;
+  --border: #d1d5db;
+}
+
+:root.dark {
+  /* same as default, but you can tweak if needed */
+  --bg: #1f2937;
+  --text: #f9fafb;
+  --primary: #2563eb;
+  --secondary: #f59e0b;
+  --card-bg: #374151;
+  --border: #4b5563;
+}
+
+:root.amber {
+  --bg: #fef3c7;
+  --text: #92400e;
+  --primary: #f59e0b;
+  --secondary: #2563eb;
+  --card-bg: #fdf2e9;
+  --border: #fde68a;
+}
+
+/* 3) Apply to html and body so loader covers all */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: sans-serif;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* Links, buttons, etc */
+a {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+}

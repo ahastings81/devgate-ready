@@ -1,0 +1,40 @@
+/* full‑screen dark backdrop */
+.loader-container {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* logo image: starts large, spins once, flips, then zooms out */
+.loader-img {
+  width: 60vmin;
+  height: auto;
+  transform-origin: center center;
+  animation:
+    spinOnce 3s linear forwards,
+    flipOnce 4s ease-in-out forwards,
+    zoomOut 4.5s ease-in-out forwards;
+}
+
+/* one 360° spin */
+@keyframes spinOnce {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* 3D Y‑axis flip (180°) */
+@keyframes flipOnce {
+  0%   { transform: rotateY(0deg); }
+  50%  { transform: rotateY(180deg); }
+  100% { transform: rotateY(180deg); }
+}
+
+/* scale up to cover viewport and fade */
+@keyframes zoomOut {
+  0%   { opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
