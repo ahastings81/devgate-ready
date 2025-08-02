@@ -1,58 +1,65 @@
-import { Router, Request, Response } from 'express';
-import { PrismaClient }           from '@prisma/client';
+import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const prisma = new PrismaClient();
 const router = Router();
 
 /**
- * GET /dashboard/metrics
- * Returns unbilled hours/amount, outstanding invoices/count & amount,
- * and revenue for the current month.
+ * GET /dashboard
+ * Returns your key metrics:
+ * - unbilledHours: sum of hours on un-billed time entries
+ * - unbilledAmount: sum of (hours * project.rate) for those entries
+ * - outstandingInvoices: count of invoices not yet paid
+ * - outstandingAmount: sum of invoice.amount for those unpaid
+ * - revenueThisMonth: sum of invoice.amount with date in the current calendar month
  */
-router.get('/metrics', requireAuth, async (req: Request, res: Response) => {
+router.get('/', requireAuth, async (req, res) => {
   const { userId } = req as AuthRequest;
+
   try {
-    // 1️⃣ Unbilled time entries
-    const entries = await prisma.timeEntry.findMany({
+    // unbilled time entries
+    const unbilledEntries = await prisma.timeEntry.findMany({
       where: { billed: false, project: { client: { userId } } },
-      include: { project: true },
+      include: { project: true }
     });
-    const unbilledHours = entries.reduce((sum, e) => sum + e.hours, 0);
-    const unbilledAmount = entries.reduce(
-      (sum, e) => sum + e.hours * (e.project.rate ?? 0),
-      0
-    );
+    const unbilledHours = unbilledEntries.reduce((sum, e) => sum + e.hours, 0);
+    const unbilledAmount = unbilledEntries.reduce((sum, e) => sum + e.hours * (e.project.rate || 0), 0);
 
-    // 2️⃣ Outstanding invoices (not “paid”)
-    const invs = await prisma.invoice.findMany({
-      where: { userId, status: { not: 'paid' } },
+    // outstanding invoices
+    const outstandingInvoices = await prisma.invoice.count({
+      where: { status: { not: 'PAID' }, userId }
     });
-    const outstandingInvoices = invs.length;
-    const outstandingAmount = invs.reduce((sum, inv) => sum + inv.amount, 0);
+    const outstandingAmount = await prisma.invoice.aggregate({
+      where: { status: { not: 'PAID' }, userId },
+      _sum: { amount: true }
+    }).then(r => r._sum.amount || 0);
 
-    // 3️⃣ Revenue this month (only “paid” invoices)
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfNext = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const monthInvs = await prisma.invoice.findMany({
+    // revenue this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0,0,0,0);
+    const endOfMonth = new Date(startOfMonth);
+    endOfMonth.setMonth(endOfMonth.getMonth()+1);
+
+    const revenueThisMonth = await prisma.invoice.aggregate({
       where: {
         userId,
-        status: 'paid',
-        date: { gte: startOfMonth, lt: startOfNext },
+        date: { gte: startOfMonth, lt: endOfMonth },
+        status: 'PAID'
       },
-    });
-    const revenueThisMonth = monthInvs.reduce((sum, inv) => sum + inv.amount, 0);
+      _sum: { amount: true }
+    }).then(r => r._sum.amount || 0);
 
     res.json({
       unbilledHours,
       unbilledAmount,
       outstandingInvoices,
       outstandingAmount,
-      revenueThisMonth,
+      revenueThisMonth
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching dashboard metrics', err);
     res.status(500).json({ error: 'Could not load dashboard metrics' });
   }
 });

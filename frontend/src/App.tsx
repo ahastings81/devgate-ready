@@ -1,5 +1,5 @@
 // frontend/src/App.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from './theme';
 import NavBar from './components/NavBar';
@@ -8,17 +8,19 @@ import LoadingScreen from './components/LoadingScreen';
 import './index.css';
 
 const App: React.FC = () => {
-  const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    // show loader for a brief moment
+    document.body.classList.add('loading');
     const timer = setTimeout(() => {
-      setLoading(false);
-    }, 4500);
-
+      setLoaded(true);
+      document.body.classList.remove('loading');
+    }, 1500);
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) {
+  if (!loaded) {
     return <LoadingScreen />;
   }
 
@@ -26,7 +28,7 @@ const App: React.FC = () => {
     <ThemeProvider>
       <BrowserRouter>
         <NavBar />
-        <div style={{ padding: 16, backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
+        <div style={{ padding: 16, backgroundColor: 'var(--bg)', minHeight: 'calc(100vh - 56px)' }}>
           <AppRoutes />
         </div>
       </BrowserRouter>

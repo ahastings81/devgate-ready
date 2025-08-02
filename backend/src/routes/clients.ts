@@ -8,7 +8,7 @@ const router = Router();
 
 /**
  * GET /clients
- * List all clients for the logged-in user.
+ * List all clients for the logged-in user, ordered by name.
  */
 router.get('/', requireAuth, async (req: Request, res: Response) => {
   const { userId } = req as AuthRequest;
@@ -17,10 +17,10 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       where: { userId },
       orderBy: { name: 'asc' },
     });
-    return res.json(clients);
+    res.json(clients);
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Could not fetch clients' });
+    res.status(500).json({ error: 'Could not fetch clients' });
   }
 });
 
@@ -33,18 +33,22 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
   const { name, contact } = req.body;
   try {
     const client = await prisma.client.create({
-      data: { name, contact, userId },
+      data: {
+        name,
+        contact: contact || undefined,
+        userId,
+      },
     });
-    return res.status(201).json(client);
+    res.status(201).json(client);
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Could not create client' });
+    res.status(500).json({ error: 'Could not create client' });
   }
 });
 
 /**
  * PUT /clients/:id
- * Update a client (if it belongs to the logged-in user).
+ * Update an existing client (only if it belongs to the user).
  */
 router.put('/:id', requireAuth, async (req: Request, res: Response) => {
   const { userId } = req as AuthRequest;
@@ -62,25 +66,27 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 
     const updated = await prisma.client.update({
       where: { id },
-      data: { name, contact },
+      data: {
+        name,
+        contact: contact || undefined,
+      },
     });
-    return res.json(updated);
+    res.json(updated);
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Could not update client' });
+    res.status(500).json({ error: 'Could not update client' });
   }
 });
 
 /**
  * DELETE /clients/:id
- * Delete a client (if it belongs to the logged‑in user).
+ * Delete a client (only if it belongs to the user).
  */
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   const { userId } = req as AuthRequest;
   const id = Number(req.params.id);
 
   try {
-    // Verify client belongs to this user
     const existing = await prisma.client.findFirst({
       where: { id, userId },
     });
@@ -89,10 +95,10 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 
     await prisma.client.delete({ where: { id } });
-    return res.status(204).send();
+    res.status(204).send();
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Could not delete client' });
+    res.status(500).json({ error: 'Could not delete client' });
   }
 });
 

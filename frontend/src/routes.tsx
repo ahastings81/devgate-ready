@@ -10,13 +10,13 @@ import Projects from './pages/Projects';
 import TimeEntries from './pages/TimeEntries';
 import Services from './pages/Services';
 import Invoices from './pages/Invoices';
-import InvoiceDetail from './pages/InvoiceDetail';  // ← make sure this file exists
+import InvoiceDetail from './pages/InvoiceDetail';
+import Profile from './pages/Profile';
 
 const AppRoutes: React.FC = () => (
   <Routes>
-    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
     {/* Public */}
+    <Route path="/" element={<Navigate to="/dashboard" replace />} />
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
 
@@ -29,7 +29,6 @@ const AppRoutes: React.FC = () => (
         </RequireAuth>
       }
     />
-
     <Route
       path="/clients"
       element={
@@ -38,7 +37,6 @@ const AppRoutes: React.FC = () => (
         </RequireAuth>
       }
     />
-
     <Route
       path="/projects"
       element={
@@ -47,7 +45,6 @@ const AppRoutes: React.FC = () => (
         </RequireAuth>
       }
     />
-
     <Route
       path="/time-entries"
       element={
@@ -56,7 +53,6 @@ const AppRoutes: React.FC = () => (
         </RequireAuth>
       }
     />
-
     <Route
       path="/services"
       element={
@@ -66,24 +62,16 @@ const AppRoutes: React.FC = () => (
       }
     />
 
-    <Route
-      path="/invoices"
-      element={
-        <RequireAuth>
-          <Invoices />
-        </RequireAuth>
-      }
-    />
+    {/* Invoice flows */}
+    
     <Route
       path="/invoices/new"
       element={
         <RequireAuth>
-          <Invoices />
+          <InvoiceDetail />
         </RequireAuth>
       }
     />
-
-    {/* ← This is the new detail route */}
     <Route
       path="/invoices/:id"
       element={
@@ -92,8 +80,25 @@ const AppRoutes: React.FC = () => (
         </RequireAuth>
       }
     />
+    <Route
+      path="/invoices"
+      element={
+        <RequireAuth>
+          <Invoices />
+        </RequireAuth>
+      }
+    />
+    {/* User profile */}
+    <Route
+      path="/profile"
+      element={
+        <RequireAuth>
+          <Profile />
+        </RequireAuth>
+      }
+    />
 
-    {/* Catch‑all: keep this last */}
+    {/* Catch-all */}
     <Route path="*" element={<Navigate to="/dashboard" replace />} />
   </Routes>
 );
